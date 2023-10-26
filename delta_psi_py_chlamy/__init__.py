@@ -6,12 +6,6 @@
 #*******************************************************************************
 #*******************************************************************************
 
-
-# import sys
-# from scipy.integrate import ode
-# import importlib as im
-# from matplotlib import cm
-# import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
@@ -25,7 +19,6 @@ from ipywidgets import FloatProgress
 from IPython.display import IFrame, Image
 import warnings
 warnings.filterwarnings("ignore")
-
 
 #*******************************************************************************
 #*******************************************************************************
@@ -288,15 +281,12 @@ def generate_square_wave_based_light_sequence (baseline_duration, baseline_inten
     riser_end_time = riser_start_time + riser_duration
     riser_time=np.linspace(int(riser_start_time), int(riser_end_time), int(riser_points))
     riser_light=np.linspace(int(baseline_intensity), int(pulse_intensity), int(riser_points))
-    #print('rst= ' + str(riser_start_time))
-    #print('ret= ' + str(riser_end_time))
     
     pulse_times=np.append(pulse_times, riser_time)
     pulse_light=np.append(pulse_light, riser_light)
     
     pulse_duration=pulse_duration*time_div
     pulse_points=pulse_duration*point_frequency
-    #pulse_start_time = (baseline_points + riser_points +1)/point_frequency
     
     pulse_start_time = pulse_times[-1] + 1/point_frequency
     pulse_end_time = pulse_start_time + pulse_duration
@@ -308,17 +298,13 @@ def generate_square_wave_based_light_sequence (baseline_duration, baseline_inten
     
     falling_duration=rise_time*time_div
     falling_points=riser_duration*point_frequency
-    
-    #falling_start_time = (baseline_points + riser_points + pulse_points + 1) / point_frequency
     falling_start_time = pulse_times[-1] + 1/point_frequency
-
     falling_end_time = falling_start_time + falling_duration
-
-    falling_time=np.linspace(int(falling_start_time), int(falling_end_time), int(falling_points))
-    falling_light=np.linspace(int(pulse_intensity), int(recovery_intensity), int(falling_points))
+    falling_time = np.linspace(int(falling_start_time), int(falling_end_time), int(falling_points))
+    falling_light = np.linspace(int(pulse_intensity), int(recovery_intensity), int(falling_points))
     
-    pulse_times=np.append(pulse_times, falling_time)
-    pulse_light=np.append(pulse_light, falling_light)
+    pulse_times = np.append(pulse_times, falling_time)
+    pulse_light = np.append(pulse_light, falling_light)
     
     recovery_duration=recovery_duration*time_div
     recovery_points=recovery_duration*point_frequency
@@ -334,12 +320,12 @@ def generate_square_wave_based_light_sequence (baseline_duration, baseline_inten
     pulse_times_seq=[]
     pulse_light_seq=[]
     
-    for index in range(0,repeat_cycles):
+    for index in range(0, repeat_cycles):
         pulse_times_seq=np.append(pulse_times_seq, pulse_times + index * pulse_times[-1])
         pulse_light_seq=np.append(pulse_light_seq, pulse_light)
-    return([pulse_times_seq, pulse_light_seq])
     
-
+    return [pulse_times_seq, pulse_light_seq]
+    
 
 #smooths a trace using the simple boxcar algorithm. 'box_pts' is the box size and y is the trace. It assumes equally spaced data\n",
 def smooth(yvals, box_pts):
@@ -3050,14 +3036,13 @@ def display_detailed_notes():
 
 
 #run the code to make all pre-contrived light waves
-light_pattern=make_waves()
+light_pattern = make_waves()
 
-#The following code generates a series of diurnal light patters, with either smooth or fluctuating
-#patterns
+#The following code generates a series of diurnal light patters, with either smooth or fluctuating patterns
 
 #### Simple Sin Wave Envelope####
 #Start with the generation of a general envelope (in this case a sine wave)
-day_length=10 # THe day length in hours
+day_length=10 # The day length in hours
 max_PAR=300 #the maximum PAR at mid-day
 envelope=sin_light(day_length, max_PAR, 10) #make an envelope shaped like a sin wave
 
@@ -3065,14 +3050,11 @@ fluctuations={} #Set up the 'fluctuations dictionary
 fluctuations['type']='none' #in this case, do not add any fluctuations ('type' = 'none')
 light_list=[] #generate a list to contain the light pattern
 light_array=generate_light_profile(envelope, fluctuations) # Put is all together to generate the light profile
-light_list.append(light_array) #append this pattern onto a list
-
-#the following REMed code shows how to plot out the light patterns, if desired
-#plt.plot(light_array[0], light_array[1]) 
+light_list.append(light_array)
 
 #### Sin Wave with rapid (on average, 100 s duration) Random Square fluctuations ####
 
-fluctuations={}
+fluctuations = {}
 fluctuations['type']='square' #defines the shape of the fluctuations
 fluctuations['distribution']='random' #make the TIME distribution random
 fluctuations['tao']=100 #tao gives the time range over which the random fluctuations occur
@@ -3087,8 +3069,6 @@ fluctuations['smooth_points']='40'  #after making the fluctuations, smooth the r
                                     #a boxcar algorithm to prevent the transitions from being too sharp
 light_array_1=generate_light_profile(envelope, fluctuations) #make the array of time and light values
 light_list.append(light_array_1) #append to the light_list 
-
-#plt.plot(light_array[0], light_array[1]) 
 
 #### Sin Wave with rapid (on average, 300 s duration) Random Square fluctuations ####
 #repeat the above, but with LOWER frequency changes
@@ -3107,7 +3087,6 @@ light_list.append(light_array_2)
 #### Sin Wave with rapid (on average, 1000 s duration) Random Square fluctuations ####
 #repeat the above, but with VERY LOW frequency changes
 
-#plt.plot(light_array[0], light_array[1]) 
 fluctuations={}
 fluctuations['type']='square'
 fluctuations['distribution']='random'
@@ -3119,5 +3098,4 @@ fluctuations['end']='9'
 fluctuations['smooth_points']='40'
 
 light_array_3=generate_light_profile(envelope, fluctuations)
-
 light_list.append(light_array_3)
