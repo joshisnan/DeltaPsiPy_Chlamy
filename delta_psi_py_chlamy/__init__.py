@@ -14,9 +14,8 @@ import matplotlib as mpl
 import copy
 from scipy import integrate
 from scipy import signal
-from IPython.core.display import display, HTML
+from IPython.core.display import display
 from ipywidgets import FloatProgress
-from IPython.display import IFrame, Image
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -59,15 +58,6 @@ species_labels = [
     ]
 
 
-#Location for the PDF files describing the parameters
-#This can be over-written during the actual run
-PDF_file_location='results/' 
-
-#In several places the code sometimes returns Nans resulting from divisions by 
-#zero. This code supresses the warnings to de-clutter the display.
-
-
-
 #*******************************************************************************
 #*******************************************************************************
 #                   Code related to generating light curves                    *
@@ -79,8 +69,8 @@ PDF_file_location='results/'
 #that would make the simulaitons too stiff for odeint. The default values are 
 #typically OK, but can be adjusted if odeint produces garbage.
 
-max_light_change=1
-points_per_segment=100
+max_light_change = 1
+points_per_segment = 100
 
 #the following code sets up a light regime based on sin waves. The wave can 
 #be either a sin or a square wave.
@@ -726,23 +716,17 @@ def calc_v_VDE(VDE_max_turnover_number, pKvde, VDE_Hill, kZE, pHlumen, V, Z):
     
     #pHmod=1-(1 - (1 / (10 ** (VDE_Hill*(pHlumen - pKvde) + 1))))
     #pHmod=(1-(1 / (10 ** (VDE_Hill*(pHlumen - pKvde) + 1))))
-    #print(pHmod)
     #calculate the net change in Z
-    v_Z = V* VDE_max_turnover_number*pHmod - Z*kZE
-    v_V = -1* v_Z
+    v_Z = V * VDE_max_turnover_number*pHmod - Z*kZE
+    v_V = -1 * v_Z
     
     return(v_Z, v_V)
     
 #calculate the rate of V<-- -->Z reactions, assuming a pH-dependent VDE and a pH-independent ZE
 def calc_PsbS_Protonation(pKPsbS, pHlumen):    
 
-    #VDE_Hill is the Hill coefficient for the VDE reaction
-    #pKvde is the pKa for protonation of VDE
-    #VDE_max_turnover_number is the maximum turnover rate (at low pH for VDE)
-    #kZE is the rate constant for the ZE reaction
-
     #pHmod is the fraction of VDE complex that is deprotonated
-    PsbS_H=1-(1 - (1 / (10 ** ((pHlumen - pKPsbS)) + 1)))
+    PsbS_H = 1 - (1 - (1 / (10 ** ((pHlumen - pKPsbS)) + 1)))
     
     return(PsbS_H)
 
@@ -773,6 +757,7 @@ be simulated by changing the code to include this term.
 """
 
 def Vproton(ATP_synthase_max_turnover, n, pmf, pmf_act):
+
     return (ATP_synthase_max_turnover*n*(1 - (1 / (10 ** ((pmf - pmf_act)/.06) + 1))))
 
 """
@@ -903,28 +888,28 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     buffering_capacity, VDE_max_turnover_number, pKvde, VDE_Hill, kZE, pKPsbS, max_NPQ, k_recomb, k_PC_to_P700, 
     triplet_yield, triplet_to_singletO2_yield, fraction_pH_effect, k_Fd_to_NADP, k_CBC, k_KEA): 
 
-    #The following are holders for paramters for testing internal functions of f
-    light_per_L=PAR
+    #The following are holders for parameters for testing internal functions of f
+    light_per_L = PAR
     
     #Transfer the dependent parameters (things that change)
-    QA, QAm, PQ, PQH2, Hin, pHlumen, Dy, pmf, deltaGatp, Klumen, Kstroma, ATP_made, PC_ox, PC_red, P700_ox, P700_red, Z, V, NPQ, singletO2, Phi2, LEF, Fd_ox, Fd_red, ATP_pool, ADP_pool, NADPH_pool, NADP_pool =y
+    QA, QAm, PQ, PQH2, Hin, pHlumen, Dy, pmf, deltaGatp, Klumen, Kstroma, ATP_made, PC_ox, PC_red, P700_ox, P700_red, Z, V, NPQ, singletO2, Phi2, LEF, Fd_ox, Fd_red, ATP_pool, ADP_pool, NADPH_pool, NADP_pool = y
     
-    PSII_recombination_v=recombination_with_pH_effects(k_recomb, QAm, Dy, pHlumen, fraction_pH_effect)
+    PSII_recombination_v = recombination_with_pH_effects(k_recomb, QAm, Dy, pHlumen, fraction_pH_effect)
         
-    dsingletO2=PSII_recombination_v*triplet_yield*triplet_to_singletO2_yield
-
+    dsingletO2 = PSII_recombination_v * triplet_yield * triplet_to_singletO2_yield
 
     #calculate pmf from Dy and deltapH 
-    pmf=Dy + 0.06*(pHstroma-pHlumen)
+    pmf = Dy + 0.06*(pHstroma-pHlumen)
 
     #***************************************************************************************
     #PSII reations
-    #****************************************************************************************
+    #***************************************************************************************
+
     #first, calculate Phi2
-    Phi2=Calc_Phi2(QA, NPQ) #I use the current' value of NPQ. I then calculate the difference below 
+    Phi2 = Calc_Phi2(QA, NPQ) #I use the current' value of NPQ. I then calculate the difference below 
 
     #calculate the number of charge separations in PSII per second
-    PSII_charge_separations=light_per_L * Phi2 - PSII_recombination_v
+    PSII_charge_separations = light_per_L * Phi2 - PSII_recombination_v
     
     #The equilibrium constant for sharing electrons between QA and the PQ pool
     #This parameter will be placed in the constants set in next revision
@@ -944,15 +929,15 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
 
     #b6f_content describes the relative (to standaard PSII) content of b6f 
     #This parameter will be placed in the constants set in next revision
-    b6f_content=1
+    b6f_content = 1
     
     #calc_v_b6f return the rate of electron flow through the b6f complex
-    v_b6f=calc_v_b6f(max_b6f, b6f_content, pHlumen, pKreg, PQ, PQH2, PC_ox, PC_red, Em7_PC, Em7_PQH2, pmf)
+    v_b6f = calc_v_b6f(max_b6f, b6f_content, pHlumen, pKreg, PQ, PQH2, PC_ox, PC_red, Em7_PC, Em7_PQH2, pmf)
 
     #calculate the change in PQH2 redox state considering the following:
     #PQ + QAm --> PQH2 + QA ; PQH2 + b6f --> PQ    
-    dPQH2 = QAm * PQ * kQA - v_b6f - + PQH2*QA*kQA/Keq_QA_PQ 
-    dPQ = -1*dPQH2
+    dPQH2 = QAm * PQ * kQA - v_b6f - + PQH2 * QA * kQA / Keq_QA_PQ 
+    dPQ = -1 * dPQH2
 
     #***************************************************************************************
     #PSI and PC reactions:
@@ -966,19 +951,19 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     
     #P700 reactions
     d_P700_ox = PSI_charge_separations - PC_red * k_PC_to_P700 * P700_ox
-    d_P700_red=-1*d_P700_ox
+    d_P700_red = -1 * d_P700_ox
     
     #PC reactions:
     d_PC_ox = PC_red * k_PC_to_P700 * P700_ox - v_b6f
-    d_PC_red = -1*d_PC_ox
+    d_PC_red = -1 * d_PC_ox
     
-    dFd_red=PSI_charge_separations - k_Fd_to_NADP*Fd_red*NADP_pool
-    dFd_ox=-1*dFd_red
+    dFd_red = PSI_charge_separations - k_Fd_to_NADP*Fd_red*NADP_pool
+    dFd_ox = -1 * dFd_red
     
-    dNADPH_pool=k_Fd_to_NADP*NADP_pool*Fd_red - NADPH_pool*k_CBC
-    dNADP_pool=-1*dNADPH_pool
+    dNADPH_pool = k_Fd_to_NADP*NADP_pool*Fd_red - NADPH_pool*k_CBC
+    dNADP_pool = -1*dNADPH_pool
     
-    dLEF=k_Fd_to_NADP*NADP_pool*Fd_red
+    dLEF = k_Fd_to_NADP*NADP_pool*Fd_red
     
     #***************************************************************************************
     # ATP synthase reactions:
@@ -990,13 +975,11 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     #    return (ATP_synthase_max_turnover*n*(1 - (1 / (10 ** ((pmf - pmf_act)/.06) + 1))))
     #vHplus=Vproton(ATP_synthase_max_turnover, n, pmf, pmf_act)
     
-    ATP_synthase_driving_force=pmf-(deltaGatp/n) #this is positive if pmf is sufficient to drive 
-                                                #reaction forward
+    ATP_synthase_driving_force = pmf - (deltaGatp / n) #this is positive if pmf is sufficient to drive 
+                                                       #reaction forward
                                                 
-    d_protons_to_ATP = ATP_synthase_max_turnover*n*ATP_synthase_driving_force 
-        
+    d_protons_to_ATP = ATP_synthase_max_turnover * n * ATP_synthase_driving_force 
     d_ATP_made = d_protons_to_ATP / n                                        
-    
     
     #***************************************************************************************
     #Proton input (from PSII, b6f and PSI) and output (ATP synthase) reactions :
@@ -1032,8 +1015,6 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     #note: net_protons_in is the total number of protons input into the lumen, including both free and bound.
     net_protons_in = d_protons_from_PSII + d_protons_from_b6f - d_protons_to_ATP
     
-    
-
     #***************************************************************************************
     #Movement of K+ in response to Dy and K+ gradient
     #***************************************************************************************    
@@ -1096,7 +1077,7 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     #with a delta_G of .06 V
     #which would be balanced by a +.06 V pmf
     
-    K_deltaG=(.06*np.log10(Kstroma/Klumen) - Dy)
+    K_deltaG = ( 0.06 * np.log10(Kstroma/Klumen) - Dy)
     
     #the KEA reaction looks like this:
     # H+(lumen) + K+(stroma) <-- --> H+(stroma) + K+(lumen)
@@ -1122,39 +1103,40 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     #the term is called "lumen_protons_per_turnover" but is the same for 
     #all species
         
-    dKlumen = net_Klumen*lumen_protons_per_turnover
+    dKlumen = net_Klumen * lumen_protons_per_turnover
     
     #We assume that the stromal vaolume is large, so there should be 
     #no substantial changes in K+
     
-    dKstroma=0 
+    dKstroma = 0 
     
     #***************************************************************************************
     #Buffering capacity and calculation of lumen pH:
     #***************************************************************************************
     # Here, we convert d_protons_in into a "concentration" by dividing by the volumen
-    dHin = net_protons_in*lumen_protons_per_turnover - v_KEA
+    dHin = net_protons_in * lumen_protons_per_turnover - v_KEA
     
     # Here we calculate the change in lumen pH by dividing dHin by the buffering capacity
-    dpHlumen= -1*dHin / buffering_capacity 
+    dpHlumen= -1 * dHin / buffering_capacity 
 
 
     #***************************************************************************************
     #Calculation of Dy considering all ion movements and thylakoid membrane capatitance
     #***************************************************************************************
+
     delta_charges=charges_from_PSII+PSI_charge_separations + charges_from_b6f + net_Klumen - d_protons_to_ATP
                 
     #delta_charges= net_protons_in + net_Klumen # - PSII_recombination_v 
     # recall that PSII_recnotesombination is negative electrogenic 
     #note, I now inclluded this term in the calculation of PSII charge separations
 
-    dDy=delta_charges*Volts_per_charge
-    dpmf= .06* dpHlumen + dDy 
+    dDy = delta_charges * Volts_per_charge
+    dpmf= 0.06 * dpHlumen + dDy 
 
     #calculate changes to deltaGatp
     #assume that deltaGatp is constant (as suggested by past resarch)...is this changes, 
     #need to consider many metabilic reactions as well
-    ddeltaGatp=0 
+    ddeltaGatp = 0 
                 
     #calculate changes in the concentrations of zeaxanthin (Z) and violaxanthin (V)
     #considering VDE_max_turnover_number, pKvde, VDE_Hill, kZE, and lumen pH
@@ -1169,29 +1151,29 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
     #its pKa and lumen pH
     
     new_PsbS_H = calc_PsbS_Protonation(pKPsbS, pHlumen + dpHlumen)
-    new_Z=Z+dZ
+    new_Z = Z + dZ
     
     #calculate NPQ, based on a simple relationahip between
     #the concentration of Z and the protonation state of PsbS
-    new_NPQ=max_NPQ*new_PsbS_H*new_Z
+    new_NPQ = max_NPQ * new_PsbS_H * new_Z
     
     #feed this into odeint by calculating the change in NPQ compared to the previous
     #time point
-    dNPQ=new_NPQ-NPQ #new_PsbS_H-PsbS_H
+    dNPQ = new_NPQ - NPQ
 
     #we re-calculate Phi2 at the start of each iteration of f, so we do not want 
     #odeint to change it
-    dPhi2=0 #
+    dPhi2 = 0
 
     #Calculate changes in the concentrations of ATP and ADP.
     #for the moment, the consumption of ATP is equal to its production,
     #so there should be no net changes.
-    dATP_pool=0
-    dADP_pool=0
+    dATP_pool = 0
+    dADP_pool = 0
 
     return [dQA, dQAm, dPQ, dPQH2, dHin, dpHlumen, dDy, dpmf, ddeltaGatp, dKlumen, dKstroma, 
             d_ATP_made, d_PC_ox, d_PC_red, d_P700_ox, d_P700_red, dZ, dV, dNPQ, dsingletO2, dPhi2, dLEF, 
-            dFd_ox, dFd_red,  dATP_pool, dADP_pool, dNADPH_pool,dNADP_pool]
+            dFd_ox, dFd_red, dATP_pool, dADP_pool, dNADPH_pool, dNADP_pool]
             
 
 
@@ -1205,11 +1187,11 @@ def f(y, t, pKreg, max_PSII, kQA, max_b6f, lumen_protons_per_turnover, PAR, ATP_
 def sim(K, initial_states, pulse_times_and_light, max_light_change, points_per_segment, **keyword_parameters):
     
     if ('dark_equilibration' in keyword_parameters):
-        equibrate_time= keyword_parameters['dark_equilibration']
-        use_initial_states=dark_equibration(initial_states, K, equibrate_time)
+        equibrate_time = keyword_parameters['dark_equilibration']
+        use_initial_states = dark_equibration(initial_states, K, equibrate_time)
     else:
-        use_initial_states=initial_states
-    sub_arrays_time_and_light= optimized_time_split(pulse_times_and_light, 
+        use_initial_states = initial_states
+    sub_arrays_time_and_light = optimized_time_split(pulse_times_and_light, 
                                 max_light_change, points_per_segment) 
 
     #first make the constants_set and trace_times for the split segments
@@ -1218,6 +1200,7 @@ def sim(K, initial_states, pulse_times_and_light, max_light_change, points_per_s
 
     #next, do the simulation
     output=do_complete_sim(use_initial_states, constants_set_and_trace_times, K)
+
     return(output, use_initial_states)
 
 
@@ -1256,10 +1239,10 @@ def do_complete_sim(y, constants_set_and_trace_times, Kx):
         soln = odeint(f, y, t, args=constants)
         
         #Set the next y value using the final values from the current simulation.
-        y=list(soln[-1,:])
+        y = list(soln[-1,:])
 
         # Fix the problem with zero time difference between runs.
-        if index>0:
+        if index > 0:
             time_axis = np.append(time_axis, t+time_axis[-1])
         else:
             time_axis = t
@@ -1309,11 +1292,6 @@ def do_complete_sim(y, constants_set_and_trace_times, Kx):
     PSII_cross_section=0.45
     for i in range(0,len(Phi2_array)):
         LEF_array_from_Phi2.append(light_curve[i]*Phi2_array[i]*PSII_cross_section)
-    
-    LEF_array_from_Phi2=[]
-    PSII_cross_section=0.45
-    for i in range(0,len(Phi2_array)):
-        LEF_array_from_Phi2.append(light_curve[i]*Phi2_array[i]*PSII_cross_section)
 
     # calculate singletO2_rate
     singletO2_array = output['singletO2_array']
@@ -1343,7 +1321,6 @@ def do_complete_sim(y, constants_set_and_trace_times, Kx):
     
     output['delta_pH']=delta_pH
     output['delta_pH_V']=delta_pH_V   
-     
     output['pmf']=pmf_total
 
     output['delta_pH_offset']=delta_pH-delta_pH[0]
@@ -1510,8 +1487,7 @@ def dark_equibration(y_initial, Kx, total_duration, **keyword_parameters):
 # It is not meant to output final results
 
 def plot_interesting_stuff(figure_name, output):
-    #matplotlib.rcParams.update['figure.figsize'] = [10, 8]
-    #light=output['light_curve']
+
     ltc='red'
     plt.rcParams.update({'font.size': 5})
     time_axis_seconds=output['time_axis']
@@ -1550,11 +1526,13 @@ def plot_interesting_stuff(figure_name, output):
     ax1.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
     ax1.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
     ax1b.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
-    ax1b.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
+    ax1b.locator_params(axis = 'y', nbins = 4)# (or axis = 'y')
+
     ax2 = fig.add_subplot(332)
     ax2.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
     ax2b = ax2.twinx()
     ax2.plot(time_axis, output['pHlumen'], label='lumen pH')
+    ax2b.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
     ax2.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     ax2.set_xlabel(time_label)
     ax2b.fill_between(time_axis,output['light_curve'],0,color='red', alpha=.1)
@@ -1651,6 +1629,12 @@ def plot_interesting_stuff(figure_name, output):
     ax5.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
     ax5b.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
     ax5b.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
+    ax5c = ax5.twinx()
+    ax5c.fill_between(time_axis,output['light_curve'], 0, color='red', alpha=0.1)
+    ax5c.set_ylim(0, 1.1*np.max(output['light_curve']))
+    ax5c.set_ylabel('')
+    ax5c.set_yticks([])
+    ax5c.set_yticklabels([])
 
     ax6 = fig.add_subplot(336)
     ax6.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
@@ -1674,40 +1658,46 @@ def plot_interesting_stuff(figure_name, output):
     ax6.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
     ax6b.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
     ax6b.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
+    ax6c = ax6.twinx()
+    ax6c.fill_between(time_axis,output['light_curve'], 0, color='red', alpha=0.1)
+    ax6c.set_ylim(0, 1.1*np.max(output['light_curve']))
+    ax6c.set_ylabel('')
+    ax6c.set_yticks([])
+    ax6c.set_yticklabels([])
 
     ax7 = fig.add_subplot(337)
     ax7.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
     ax7b = ax7.twinx()
-    ax7b.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
+    # ax7b.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
     ax7.plot(time_axis, output['Z'], label='Z')
     ax7.plot(time_axis, output['V'], label='V')
     ax7.set_xlabel(time_label)
     ax7.set_ylabel('Z and V')
-    ax7b.fill_between(time_axis,output['light_curve'],0,color='red', alpha=.1)
+    ax7b.fill_between(time_axis,output['light_curve'], 0, color='red', alpha=0.1)
     ax7b.set_ylim(0, 1.1*np.max(output['light_curve']))
-    ax7b.set_ylabel('intensity')
-    ax7.set_xlim(0, 1.1*np.max(time_axis))
-    ax7b.set_xlim(0, 1.1*np.max(time_axis))
     ax7b.set_ylabel('')
+    ax7b.set_yticks([])
+    ax7b.set_yticklabels([])
+    ax7.set_xlim(0, 1.1*np.max(time_axis))
+    # ax7b.set_xlim(0, 1.1*np.max(time_axis))
     ax7.yaxis.label.set_color('blue')
-    ax7b.yaxis.label.set_color(ltc)
+    # ax7b.yaxis.label.set_color(ltc)
     ax7.spines['left'].set_color('blue')
-    ax7b.spines['right'].set_color(ltc)
-    ax7b.spines['left'].set_color('blue')
+    # ax7b.spines['right'].set_color(ltc)
+    # ax7b.spines['left'].set_color('blue')
     ax7.tick_params(axis='y', colors='blue')
-    ax7b.tick_params(axis='y', colors=ltc)
-    ax7.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
-    ax7.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
-    ax7b.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
-    ax7b.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
-    ax7c = ax7.twinx()
+    # ax7b.tick_params(axis='y', colors=ltc)
+    ax7.locator_params(axis = 'both', nbins = 4)
 
+    ax7c = ax7.twinx()
     ax7.plot(time_axis, output['V'], label='V')
     ax7c.spines['right'].set_color('orange')
     ax7c.plot(time_axis, output['PsbS_protonated'], label='PsbSH+', color='orange')
+    ax7c.tick_params(axis='y', colors='orange')
     ax7c.set_ylabel('PsbSH+')
     ax7c.yaxis.label.set_color('orange')
-            
+    ax7c.locator_params(axis = 'both', nbins = 4)# (or axis = 'y')
+
     ax8 = fig.add_subplot(338)
     ax8.ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
     ax8b = ax8.twinx()
@@ -1715,7 +1705,7 @@ def plot_interesting_stuff(figure_name, output):
     ax8.plot(time_axis, output['NPQ'], label='qE')
     ax8.set_xlabel(time_label)
     ax8.set_ylabel('NPQ (qE)')
-    ax8b.fill_between(time_axis,output['light_curve'],0,color='red', alpha=.1)
+    ax8b.fill_between(time_axis,output['light_curve'],0,color='red', alpha=0.1)
     ax8b.set_ylim(0, 1.1*np.max(output['light_curve']))
     ax8.set_xlim(0, 1.1*np.max(time_axis))
     ax8b.set_xlim(0, 1.1*np.max(time_axis))
@@ -1758,15 +1748,14 @@ def plot_interesting_stuff(figure_name, output):
     ax9b.locator_params(axis = 'x', nbins = 4)# (or axis = 'y') 
     ax9b.locator_params(axis = 'y', nbins = 4)# (or axis = 'y') 
 
-    plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    # plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
+    plt.tight_layout()
     plt.show()
 
 
-
-#                    
-#find the global max and min for a list of arrays
-
 def global_min_max(list_of_arrays):
+
+    #find the global max and min for a list of arrays
     local_max=[]
     local_min=[]
     for local_array in list_of_arrays:
@@ -1778,7 +1767,8 @@ def global_min_max(list_of_arrays):
     return (global_min,global_max)
                     
 
-def get_axis_limits(ax, scale=.9):
+def get_axis_limits(ax, scale=0.9):
+
     return ax.get_xlim()[1]*scale, ax.get_ylim()[1]*scale
 
 # plot_gen is a generalized routine for plotting out the kinds of graphs I use
@@ -1835,7 +1825,6 @@ def plot_gen(fig, sub_plot_number, plot_list, plot_every_nth_point, **keyword_pa
         #which is when sub_plot_number[2]+ sub_plot_number[1]-1 is divisible by the number of conditons, e.g.
         # 1+3-1 = 3 or 4+3-1 =6...
         # I test for this using the modulus function %
-        
         
         
         if (sub_plot_number[2]+ sub_plot_number[1]-1)%sub_plot_number[1]==0 and plots.axis=='left': 
@@ -1957,11 +1946,7 @@ def plot_gen(fig, sub_plot_number, plot_list, plot_every_nth_point, **keyword_pa
     return(all_axes)
 
 
-
-
-
-def plot_pmf_params(output, use_x_axis, x_axis_label, global_min, global_max):
-    sub_base=False
+def plot_pmf_params(output, use_x_axis, x_axis_label, global_min, global_max, sub_base=False):
     
     all_min=np.min([global_min['Dy'], global_min['delta_pH_V'],global_min['pmf'] ])
     all_max=np.max([global_max['Dy'], global_max['delta_pH_V'],global_max['pmf'] ])
@@ -1988,17 +1973,14 @@ def plot_pmf_params(output, use_x_axis, x_axis_label, global_min, global_max):
     a1.set_maxmin_y=True
     a1.set_maxmin_x=False
     a1.maxmin_x=[0,1000]
-    
     a1.maxmin_y=[all_min, all_max]
 
     a1.yaxis_visible=True
     a1.show_legend=True
 
-    #add to the left axis, a plot for delta_pH 
-
+    #add to the left axis, a plot for delta_pH
     a2=copy.deepcopy(a1) #sim_plot()
     what_to_plot=[use_x_axis, 'delta_pH_V']
-    #plot delta pH
     a2.data_label=r'$\Delta$pH'
     a2.axis_color='black'
     a2.marker_color='red'
@@ -2008,21 +1990,16 @@ def plot_pmf_params(output, use_x_axis, x_axis_label, global_min, global_max):
     a2.maxmin_y=[all_min, all_max]
 
 
+    # add to the left axis, a plot of pmf in V
     a3=copy.deepcopy(a1)
     what_to_plot=[use_x_axis, 'pmf']
-                            
-    # add to the left axis, a plot of pmf in V
     a3.what_to_plot=what_to_plot
     a3.data_label='pmf'
     a3.axis_color='black'
     a3.marker_color='green'
     a3.linestyle='solid'
     a3.subtract_baseline=sub_base
-
-    #a3.maxmin_y=[global_min[what_to_plot[1]],global_max[what_to_plot[1]]]
     a3.maxmin_y=[all_min, all_max]
-
-
 
     #set up the right axis of the plot for the llight curve as a semi-transparent filled area, do not discply the axis
     a4=copy.deepcopy(a1)
@@ -2033,20 +2010,17 @@ def plot_pmf_params(output, use_x_axis, x_axis_label, global_min, global_max):
     a4.marker_color='red'
     a4.subtract_baseline=False
     a4.set_maxmin_y=False
-    #a4.maxmin_y=[global_min[what_to_plot[1]],global_max[what_to_plot[1]]]
     a4.maxmin_y=[all_min, all_max]
     a4.set_maxmin_x=False
     a4.yaxis_visible=False
     a4.maxmin_x=[0,1000]
     
-    
     return [a1,a2,a3,a4]
 
-def plot_pmf_params_offset(output, use_x_axis, x_axis_label, global_min, global_max):
-    sub_base=False
+def plot_pmf_params_offset(output, use_x_axis, x_axis_label, global_min, global_max, sub_base=False):
     
-    all_min=np.min([global_min['Dy_offset'], global_min['delta_pH_V_offset'],global_min['pmf_offset'] ])
-    all_max=np.max([global_max['Dy_offset'], global_max['delta_pH_V_offset'],global_max['pmf_offset'] ])
+    all_min = np.min([global_min['Dy_offset'], global_min['delta_pH_V_offset'], global_min['pmf_offset'] ])
+    all_max = np.max([global_max['Dy_offset'], global_max['delta_pH_V_offset'], global_max['pmf_offset'] ])
     
     #set up the left axis of the plot for membrane potential
     what_to_plot=[use_x_axis, 'Dy_offset']
@@ -2074,13 +2048,9 @@ def plot_pmf_params_offset(output, use_x_axis, x_axis_label, global_min, global_
     a1.yaxis_visible=True
     a1.show_legend=True
 
-    #pmf_parameters_plot.append(a1)
-
     #add to the left axis, a plot for delta_pH 
-
     a2=copy.deepcopy(a1) #sim_plot()
     what_to_plot=[use_x_axis, 'delta_pH_V_offset']
-    #plot delta pH
     a2.data_label=r'$\Delta$pH'
     a2.axis_color='black'
     a2.marker_color='red'
@@ -2088,12 +2058,10 @@ def plot_pmf_params_offset(output, use_x_axis, x_axis_label, global_min, global_
     a2.linestyle='dashed'
     a2.subtract_baseline=sub_base
     a2.maxmin_y=[all_min, all_max]
-
-
-    a3=copy.deepcopy(a1)
-    what_to_plot=[use_x_axis, 'pmf_offset']
                             
     # add to the left axis, a plot of pmf in V
+    a3=copy.deepcopy(a1)
+    what_to_plot=[use_x_axis, 'pmf_offset']
     a3.what_to_plot=what_to_plot
     a3.data_label='pmf'
     a3.axis_color='black'
@@ -2102,7 +2070,6 @@ def plot_pmf_params_offset(output, use_x_axis, x_axis_label, global_min, global_
     a3.linestyle='dashed'
     a3.subtract_baseline=sub_base
     a3.maxmin_y=[all_min, all_max]
-
 
     #set up the right axis of the plot for the llight curve as a semi-transparent filled area, do not discply the axis
     a4=copy.deepcopy(a1)
@@ -2123,14 +2090,11 @@ def plot_pmf_params_offset(output, use_x_axis, x_axis_label, global_min, global_
 def plot_K_and_parsing(output, use_x_axis, x_axis_label,global_min, global_max):
 
     #set up the left axis of the plot for NPQ
-    
     a1=sim_plot() #define an instance of the plot 
     what_to_plot=[use_x_axis, 'NPQ'] #indicate thwat to plot. the variable 'use_this_axis' is passed to the function
-    
     a1.y_axis_label=r'q$_{E}$' # set the y-axis label
     a1.data_label='qE'
     a1.output=output
-    
     a1.what_to_plot=what_to_plot
     a1.axis_color='green'
     a1.marker_color='green'
@@ -2154,7 +2118,6 @@ def plot_K_and_parsing(output, use_x_axis, x_axis_label,global_min, global_max):
     a1.show_legend=False
 
     #set up the right axis of the plot for [K+]
-
     a2=copy.deepcopy(a1) #sim_plot()
     what_to_plot=[use_x_axis, 'Klumen']
     a2.data_label=r'lumen $K^{+}$ (M)' #'[K+] lumen (M)'
@@ -2167,7 +2130,6 @@ def plot_K_and_parsing(output, use_x_axis, x_axis_label,global_min, global_max):
     a2.y_axis_label=r'lumen $K^{+}$ (M)' #'[K+] lumen (M)'
     a2.show_legend=False
     a2.set_maxmin_y=True
-    #a2.maxmin_y=[global_min[what_to_plot[1]],global_max[what_to_plot[1][1]]]
     a2.maxmin_y=[global_min[what_to_plot[1]],global_max[what_to_plot[1]]]
 
     #set up the right axis of the plot for the llight curve as a semi-transparent filled area, do not discply the axis
@@ -2184,8 +2146,8 @@ def plot_K_and_parsing(output, use_x_axis, x_axis_label,global_min, global_max):
     a4.yaxis_visible=False
     a4.maxmin_x=[0,1000]
     a4.show_legend=False
+
     return [a1,a2,a4]
-    
 
         
 def b6f_and_balance(output, use_x_axis, x_axis_label, global_min, global_max):
@@ -2193,7 +2155,6 @@ def b6f_and_balance(output, use_x_axis, x_axis_label, global_min, global_max):
     #set up the left axis of the plot for NPQ
     a1=sim_plot()
     a1.output=output
-
     what_to_plot=[use_x_axis, 'b6f_control']
     a1.data_label='rate constant for b6f' #'[K+] lumen (M)'
     a1.axis_color='blue'
@@ -2214,12 +2175,10 @@ def b6f_and_balance(output, use_x_axis, x_axis_label, global_min, global_max):
         a1.x_axis_label=x_axis_label
     else:
         a1.x_axis_label='time (s)'
-
-
     a1.yaxis_visible=True
     a1.show_legend=False
     
-    a2=copy.deepcopy(a1) #sim_plot()
+    a2=copy.deepcopy(a1)
     what_to_plot=[use_x_axis, 'pHlumen']
     a2.data_label=r'lumen pH'
     a2.axis_color='red'
@@ -2248,7 +2207,6 @@ def b6f_and_balance(output, use_x_axis, x_axis_label, global_min, global_max):
     a4.maxmin_x=[0,1000]
     a4.show_legend=False
     
-
     return [a1, a2, a4]
     
     
@@ -2281,8 +2239,7 @@ def plot_QAm_and_singletO2(output, use_x_axis, x_axis_label,global_min, global_m
     a1.show_legend=False
 
     #set up the right axis of the plot for 1O2
-
-    a2=copy.deepcopy(a1) #sim_plot()
+    a2=copy.deepcopy(a1)
     what_to_plot=[use_x_axis, 'singletO2_rate']
     a2.data_label=r'$^{1}O_{2}$ $(s^{-1})$'
     a2.axis_color='red'
@@ -2310,15 +2267,16 @@ def plot_QAm_and_singletO2(output, use_x_axis, x_axis_label,global_min, global_m
     a4.yaxis_visible=False
     a4.maxmin_x=[0,1000]
     a4.show_legend=False
+
     return [a1,a2,a4]
     
 def plot_cum_LEF_singetO2(output, use_x_axis, x_axis_label,global_min, global_max):
+
     #set up the left axis of the plot for commulative LEF
     a1=sim_plot()
     what_to_plot=[use_x_axis, 'LEF_cumulative']
     a1.data_label='LEF cumulative'
     a1.output=output
-    
     a1.what_to_plot=what_to_plot
     a1.axis_color='green'
     a1.marker_color='green'
@@ -2376,6 +2334,7 @@ def plot_cum_LEF_singetO2(output, use_x_axis, x_axis_label,global_min, global_ma
     return [a1,a2,a4]
     
 def best_time_scale(output):
+
     #determine the best time axis to use
     max_time=np.max(output['time_axis'])
     if max_time>3599:    
@@ -2387,7 +2346,8 @@ def best_time_scale(output):
     else:
         use_time_axis='time_axis'
         time_label='Time (s)'
-    return(use_time_axis, time_label)
+
+    return use_time_axis, time_label
     
 def find_global_max_min(output_list, conditions_to_plot, pad):
     global_min={}
@@ -2398,7 +2358,6 @@ def find_global_max_min(output_list, conditions_to_plot, pad):
         gmin_array=[]
         gmax_array=[]
         for condition_name in conditions_to_plot:
-            #print(condition_name)
             output=output_list[condition_name]
             gmin_array.append(np.min(output[k]))
             gmax_array.append(np.max(output[k]))
@@ -2406,14 +2365,14 @@ def find_global_max_min(output_list, conditions_to_plot, pad):
         gmax=np.max(gmax_array)
         global_min[k]=gmin-(pad*(gmax-gmin))
         global_max[k]=gmax+(pad*(gmax-gmin))
-    return(global_min, global_max)
+
+    return global_min, global_max
     
 #generate a dictionary of plotting functions so they can be more easily called in loops
 
 plot_results={}
 plot_results['pmf_params']=plot_pmf_params
 plot_results['pmf_params_offset']=plot_pmf_params_offset
-
 plot_results['K_and_parsing']=plot_K_and_parsing
 plot_results['plot_QAm_and_singletO2']=plot_QAm_and_singletO2
 plot_results['plot_cum_LEF_singetO2']=plot_cum_LEF_singetO2
@@ -2451,17 +2410,16 @@ def plot_block(output_list, fig, conditions_to_plot, where, phenomena_sets, plot
             
             plot_gen(fig, sub_plot_number, plot_list, plot_every_nth_point, 
             subplot_label=an_text, annotation=an_text) #subplot_lables[subplot_annotation_number])
-            
-#shrink will decrease the size of very large data sets by returning every nth point sets
 
-def shrink(output, start_point, take_every_nth_point):
+
+def shrink(output, take_every_nth_point):
+    #shrink will decrease the size of very large data sets by returning every nth point sets
     shrunk={}
     for key in list(output.keys()):
         shrunk[key]=output[key][::take_every_nth_point]
     return(shrunk)
 
 
-    
 class FrozenClass(object):
     __isfrozen = False
     def __setattr__(self, key, value):
@@ -2497,7 +2455,6 @@ class sim_plot(FrozenClass):
         self._freeze() # no new attributes after this point.
 
 
-        
 class States(FrozenClass):
     def __init__(self):
         self.QA_content=1
@@ -2533,111 +2490,103 @@ class States(FrozenClass):
 
 #Set up STANDARD initial conditions, most of these values were taken from Cruz et al., 2005
 class standard_constants(object):
+    
     #***************************************************************************************
-    #paramweters for V-->Z and Z-->V reactions 
+    #parameters for V-->Z and Z-->V reactions 
     #***************************************************************************************
+    
     VDE_max_turnover_number=1
     pKvde=5.8
     VDE_Hill=4 
     kZE=0.03
 
     #***************************************************************************************
-    #paramweters for PsbS protonation 
+    #parameters for PsbS protonation 
     #***************************************************************************************
 
     pKPsbS=6.4  #pKa for protonation of PsbS, assuming Hill coefficient=1
     max_NPQ=5
-
     pHstroma_initial=7.8
+    
     #***************************************************************************************
-    #paramweters for ATP SYNTHASE
+    #parameters for ATP SYNTHASE
     #***************************************************************************************
-    ATP_synthase_content=1
-    ATP_synthase_max_turnover=1000*ATP_synthase_content
-
+    
+    ATP_synthase_content = 1
+    ATP_synthase_max_turnover = 1000 * ATP_synthase_content
 
     #***************************************************************************************
     #Membrane capacitance
     #***************************************************************************************
-    Thylakoid_membrane_capacitance = 0.6
-    Volts_per_charge=.033 #thylakoid membrane capacitance = 0.6 uF/cmn2
-
     
-    #print('the DGATP is set to: ' + str(DeltaGatp_KJ_per_mol) + ' kJ/mol, which is: ' + str(DeltaGatp_initial) + ' volts')
-    #ATP=1/(10**((32-DeltaGatp_initial)/5.7)+1)
+    Thylakoid_membrane_capacitance = 0.6
+    Volts_per_charge = 0.033 #thylakoid membrane capacitance = 0.6 uF/cmn2
 
     #***************************************************************************************
     # The value of n, calculated from c subunits
     # Here is where we set up the value of n, the ratio of protons/ATP, which I assume is (# of c subunits)/3
     #***************************************************************************************
     
-    
-    c_subunits_per_ATP_synthase=14
-    n=c_subunits_per_ATP_synthase/3 
-
+    c_subunits_per_ATP_synthase = 14
+    n = c_subunits_per_ATP_synthase / 3 
 
     #***************************************************************************************
     # Counter ion exchange reactions
     #***************************************************************************************
-    #permeability of the thylakoid to K+ 
-    perm_K=6000
-
+    
+    perm_K = 6000 # permeability of the thylakoid to K+ 
 
     #***************************************************************************************
     # b6f reactions
     #***************************************************************************************
-    b6f_content=1
-    max_b6f=500
-    pKreg=6.5
-    Em7_PC=0.37
+    
+    b6f_content = 1
+    max_b6f = 500
+    pKreg = 6.5
+    Em7_PC = 0.37
     Em7_PQH2 = 0.11
 
     #***************************************************************************************
     # Lumen proton bufering reactions
     #***************************************************************************************
-    lumen_protons_per_turnover=1.4e-05 #the change in molarity with one H+ transferred to 
-    #lumen per PSII
-    buffering_capacity=.03
-
-    PSI_antenna_size=1 #setting this to the same valus as PSII_antenna_size will imply that 
-                        #equal numbers of photons hit the two photosystems
-
-    k_PC_to_P700=500 #rate constant for oxidation of PC by P700+
+    
+    buffering_capacity = 0.03
+    k_PC_to_P700 = 500 #rate constant for oxidation of PC by P700+
+    lumen_protons_per_turnover = 1.4e-05 #the change in molarity with one H+ transferred to 
+                                         #lumen per PSII
+    PSI_antenna_size = 1 #setting this to the same valus as PSII_antenna_size will imply that 
+                         #equal numbers of photons hit the two photosystems
 
     #***************************************************************************************
     # Proton exchange through the KEA3 system
     #***************************************************************************************
 
-    k_KEA=0
+    k_KEA = 0
 
     #***************************************************************************************
     #parameters for PSII reactions 
     #***************************************************************************************
-    max_PSII=1     
-    PSII_antenna_size=1
-
-    kQA=1000  #the rate constant for oxidation of QA- by PQ
-
+    
+    max_PSII = 1     
+    PSII_antenna_size = 1
+    kQA = 1000  #the rate constant for oxidation of QA- by PQ
 
     #***************************************************************************************
     #parameters for recombination and singlet O2 production 
     #***************************************************************************************
-    k_recomb=0.33
-    triplet_yield=.45 #45% of recomnbinations lead to P680 triplets
-    triplet_to_singletO2_yield=1 #100% of 3P680 give rise to 1O2
-
+    
+    k_recomb = 0.33
+    triplet_yield = 0.45 #45% of recomnbinations lead to P680 triplets
+    triplet_to_singletO2_yield = 1 #100% of 3P680 give rise to 1O2
 
     #***************************************************************************************
     #Light intensity in terms of hits per second to PSII associated antenna 
     #***************************************************************************************
 
-    light_per_L=0
-
-    k_Fd_to_NADP=1000 #rate constant for transfer of electrons from Fd to NADP
+    light_per_L = 0
+    k_Fd_to_NADP = 1000 #rate constant for transfer of electrons from Fd to NADP
+    k_CBC = 3000 #rate constant for the Calvin-Benson cycle
     
-    k_CBC=3000 #rate constant for the Calvin-Benson cycle
-    
-
 #***************************************************************************************
 #***************************************************************************************
 # Initial concentrations and parameters
@@ -2665,17 +2614,16 @@ class standard_initial_states(object):
     #***************************************************************************************
 
     DeltaGatp_KJ_per_mol = 42
-
-    #convert DGATP into volts
-    DeltaGatp_initial = 0.06 * DeltaGatp_KJ_per_mol / 5.7
-
+    DeltaGatp_initial = 0.06 * DeltaGatp_KJ_per_mol / 5.7 #convert DGATP into volts
 
     #***************************************************************************************
     # Estimate initial pmf
     #***************************************************************************************
+    
     #the initial pmf should be DGATP/N
     n = 4.666
     pmf_initial = DeltaGatp_initial / n
+
     #***************************************************************************************
     #Initial lumen pH
     #the following sets up the initial pmf and pH values
@@ -2690,10 +2638,9 @@ class standard_initial_states(object):
     #the following sets up the initial Dy
     #***************************************************************************************
 
-    Dy_initial = pmf_initial / 2 #place the other half as Dy
-
     LEF_initial = 0.0
     Phi2_initial = 0.8
+    Dy_initial = pmf_initial / 2 #place the other half as Dy
 
     #tell the user what the concentration of free H+ is in the lumen
     free_H = 10**(-1*pmf_initial)
@@ -2727,18 +2674,15 @@ class standard_initial_states(object):
     P700_red_initial = 1
     PSI_content = P700_red_initial + P700_ox_initial
     PSI_antenna_size = 1 #setting this to the same valus as PSII_antenna_size will imply that 
-                        #equal numbers of photons hit the two photosystems
-
-
+                         #equal numbers of photons hit the two photosystems
     Fd_ox_initial = 1 #currently, Fd will just accumulate 
     Fd_red_initial = 0 #currently, Fd will just accumulate 
     
-
     #***************************************************************************************
     #parameters for NPQ 
     #***************************************************************************************
+    
     NPQ_initial=0
-
     singletO2_initial = 0
     ATP_pool_initial = 30
     ADP_pool_initial = 30
@@ -2840,9 +2784,7 @@ class sim_constants(FrozenClass):
         "k_Fd_to_NADP":'The second order rate constant for oxidation of Fd by NADP+', 
         "k_CBC": 'The rate constant for a simplified Calvin-Benson Cycle',
         "k_KEA": 'The rate constant for the KEA H+/H+ antiporter'}
-        return(e)
-        
-        #self._freeze() # no new attributes after this point.
+        return e
         
         
 class sim_states(FrozenClass):
@@ -2958,13 +2900,12 @@ class sim_states(FrozenClass):
         self._freeze() # no new attributes after this point.
         return(d)
 
-    
+
 #*******************************************************************************
 #*******************************************************************************
 #                    Display notes, states and constants. 
 #*******************************************************************************
 #********************************************************************************
-
 
 class ListTable(list):
     """ Overridden list class which takes a 2-dimensional list of 
@@ -2987,12 +2928,9 @@ class ListTable(list):
 def All_Constants_Table(table_title, Kxx):
     table = ListTable()
     table.append(['Parameter', 'New Value']) #, 'Short Description'])
-    #Kxx=sim_constants()
     Kdict=Kxx.as_dictionary()
-    #Ksumm=Kxx.short_descriptions()
 
     for key in list(Kdict.keys()):
-
         table.append([key, Kdict[key]]) #, Ksumm[key]])
     print(table_title)
     display(table)
@@ -3002,8 +2940,6 @@ def Changed_Constants_Table(table_title, original_values, Kxx):
     table = ListTable()
     table.append(['Changed Parameter', 'Old Value', 'New Value']) #, 'Short Description'])
     Kdict=Kxx.as_dictionary()
-    #Ksumm=Kxx.short_descriptions()
-    #temp=sim_constants()
     original_values_dict=original_values.as_dictionary()
 
     for key in list(Kdict.keys()):
@@ -3013,89 +2949,3 @@ def Changed_Constants_Table(table_title, original_values, Kxx):
             table.append([key, original_values_dict[key], Kdict[key]]) #, Ksumm[key]])
     print(table_title)
     display(table)
-
-
-
-#Display PDFs of the detailed notes describing the simulation parameters
-def display_detailed_notes():
-
-    page1=Image(PDF_file_location + 'Page 1.png')
-    page2=Image(PDF_file_location + 'Page 2.png')
-    page3=Image(PDF_file_location + 'Page 3.png')
-
-    display(page1)
-    display(page2)
-    display(page3)
-    
-    
-#*******************************************************************************
-#*******************************************************************************
-#                    Startup code to get things set up. 
-#*******************************************************************************
-#********************************************************************************
-
-
-#run the code to make all pre-contrived light waves
-light_pattern = make_waves()
-
-#The following code generates a series of diurnal light patters, with either smooth or fluctuating patterns
-
-#### Simple Sin Wave Envelope####
-#Start with the generation of a general envelope (in this case a sine wave)
-day_length=10 # The day length in hours
-max_PAR=300 #the maximum PAR at mid-day
-envelope=sin_light(day_length, max_PAR, 10) #make an envelope shaped like a sin wave
-
-fluctuations={} #Set up the 'fluctuations dictionary
-fluctuations['type']='none' #in this case, do not add any fluctuations ('type' = 'none')
-light_list=[] #generate a list to contain the light pattern
-light_array=generate_light_profile(envelope, fluctuations) # Put is all together to generate the light profile
-light_list.append(light_array)
-
-#### Sin Wave with rapid (on average, 100 s duration) Random Square fluctuations ####
-
-fluctuations = {}
-fluctuations['type']='square' #defines the shape of the fluctuations
-fluctuations['distribution']='random' #make the TIME distribution random
-fluctuations['tao']=100 #tao gives the time range over which the random fluctuations occur
-fluctuations['variations']='random' #This sets the amplitudes of the fluctuations to random
-fluctuations['amplitude']=[-.8,0.8] #the maximal fractional changes, relative to the envelope
-                                    #for the fluctuations. In this case they can range from 0.2
-                                    #to 1.8 of the envelop (i.e. envelope_value+(envelope_value * -0.8) 
-                                    # to 1 + envelope_value+(envelope_value * 0.8) 
-fluctuations['begin']='1' #start time for the fluctuations
-fluctuations['end']='9' #end time for the fluctuations
-fluctuations['smooth_points']='40'  #after making the fluctuations, smooth the resulting curve using
-                                    #a boxcar algorithm to prevent the transitions from being too sharp
-light_array_1=generate_light_profile(envelope, fluctuations) #make the array of time and light values
-light_list.append(light_array_1) #append to the light_list 
-
-#### Sin Wave with rapid (on average, 300 s duration) Random Square fluctuations ####
-#repeat the above, but with LOWER frequency changes
-fluctuations={}
-fluctuations['type']='square'
-fluctuations['distribution']='random'
-fluctuations['tao']=300
-fluctuations['variations']='random'
-fluctuations['amplitude']=[-0.8,.8] #the maximal fractional change 
-fluctuations['begin']='1'
-fluctuations['end']='9'
-fluctuations['smooth_points']='40'
-light_array_2=generate_light_profile(envelope, fluctuations)
-light_list.append(light_array_2)
-
-#### Sin Wave with rapid (on average, 1000 s duration) Random Square fluctuations ####
-#repeat the above, but with VERY LOW frequency changes
-
-fluctuations={}
-fluctuations['type']='square'
-fluctuations['distribution']='random'
-fluctuations['tao']=1000
-fluctuations['variations']='random'
-fluctuations['amplitude']=[-0.8,.8] #the maximal fractional change 
-fluctuations['begin']='1'
-fluctuations['end']='9'
-fluctuations['smooth_points']='40'
-
-light_array_3=generate_light_profile(envelope, fluctuations)
-light_list.append(light_array_3)
